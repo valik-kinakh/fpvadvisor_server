@@ -1,16 +1,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const http = require('http');
+
+require('dotenv').config();
+
+const { mongoConnect } = require('./mongo');
 
 const app = express();
 const PORT = process.env.PORT || 3030;
 
 app.use(cors());
 app.use(express.json());
-// Connect to MongoDB
-mongoose.connect('mongodb+srv://valikkinah:neZiR9Uabtdr5hcF@cluster0.dvo6pij.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('Error connecting to MongoDB', err));
 
 // Define a schema and model
 const Schema = mongoose.Schema;
@@ -96,6 +97,12 @@ app.post('/drones/find', async (req, res) => {
     }
 })
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+const server = http.createServer(app);
+
+async function startServer() {
+    await mongoConnect();
+
+    server.listen(PORT, () => console.log(`Listening on port ${PORT}`))
+}
+
+startServer();
